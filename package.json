@@ -1,0 +1,21 @@
+{
+  "name": "chatclient",
+  "version": "1.0.0",
+  "description": "Front-End Client for the chatserver",
+  "main": "app.js",
+  "dependencies": {
+    "http-server": "^0.10.0"
+  },
+  "scripts": {
+    "start": "http-server ./ -c-1",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreasellervee/chatclient.git"
+  },
+  "keywords": [],
+  "author": "Andreas Ellervee",
+  "license": "ISC",
+  "homepage": "https://github.com/andreasellervee/chatclient#readme"
+}

@@ -1,28 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8"/>
-    <title>Chat Client</title>
-  </head>
-  <body ng-app="ChatClient" ng-controller="mainController as main">
-    <input type="text" id="from" ng-model="main.from" placeholder="Your user"/>
-    <input type="button" value="Connect to chat" ng-click="main.connectToChat()"/>
-    <br/>
-    <input type="text" id="to" ng-model="main.to" placeholder="Chat with"/>
-    <input type="button" value="Connect to {{main.to}}" ng-click="main.chatWith()"/>
-    <br/>
-    <div id="chat-content">
-      <p ng-repeat="message in main.messages track by message.id">
-        <strong>{{message.from.name}}</strong> ({{message.timestamp | date:'shortTime'}}): {{message.data}} (Status: {{message.messageStatus}})
-      </p>
-    </div>
-    <br/>
-    <input type="text" id="data" ng-model='main.data' placeholder="Enter chat message"/>
-    <input type="button" value="Send" ng-click="main.sendMessage()"/>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <script src="app.js" ></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Client</title>
+</head>
+
+<body ng-app="ChatClient" ng-controller="mainController as main">
+  <input type="text" id="from" ng-model="main.from" placeholder="Your user" />
+  <input type="button" value="Connect to chat" ng-click="main.connectToChat()" />
+  <br/>
+  <input type="text" id="to" ng-model="main.to" placeholder="Chat with" />
+  <input type="button" value="Connect to {{main.to}}" ng-click="main.chatWith()" />
+  <br/>
+  <div id="chat-content">
+    <p ng-repeat="message in main.messages track by message.id">
+      <strong>{{message.from.name}}</strong> ({{message.timestamp | date:'shortTime'}}): {{message.data}} (Status: {{message.messageStatus}})
+    </p>
+  </div>
+  <br/>
+  <input type="text" id="data" ng-model='main.data' placeholder="Enter chat message" />
+  <input type="button" value="Send" ng-click="main.sendMessage()" />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
 </html>

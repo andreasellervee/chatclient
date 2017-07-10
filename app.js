@@ -1,6 +1,6 @@
 angular.module('ChatClient', [])
-       .controller('mainController', mainController)
-       .factory('messageService', messageService);
+  .controller('mainController', mainController)
+  .factory('messageService', messageService);
 
 function mainController($scope, messageService) {
   var vm = this;
@@ -15,29 +15,28 @@ function mainController($scope, messageService) {
 
   function connectToChat() {
     if (!vm.from) return;
-  	stompClient = Stomp.over(new SockJS(messageService.endpoint + '/chatserver-websocket'));
-  	stompClient.connect({}, function (frame) {
-  		stompClient.subscribe('/user/' + vm.from + '/message', function (message) {
-  			var parsedMessage = JSON.parse(message.body);
-        messageService.setMessageStatus(parsedMessage.id, 'RECEIVED',
-          function toSeen() {
-            messageService.setMessageStatus(parsedMessage.id, 'SEEN');
-          }
-        );
-        parsedMessage.messageStatus = 'SEEN';
-        vm.messages.push(parsedMessage);
-  		});
-      stompClient.subscribe('/user/' + vm.from + '/notification', function (messageStatusChange) {
+    stompClient = Stomp.over(new SockJS(messageService.endpoint + '/chatserver-websocket'));
+    stompClient.connect({}, function(frame) {
+      stompClient.subscribe('/user/' + vm.from + '/message', function(message) {
+        var parsedMessage = JSON.parse(message.body);
+        var fromCurrentChat = parsedMessage.from.name === vm.to;
+        setMessageToReceivedAndSeenIf(parsedMessage.id, fromCurrentChat);
+        if (fromCurrentChat) {
+          parsedMessage.messageStatus = 'SEEN';
+          vm.messages.push(parsedMessage);
+        }
+      });
+      stompClient.subscribe('/user/' + vm.from + '/notification', function(messageStatusChange) {
         var parsedNotification = JSON.parse(messageStatusChange.body);
-        for (var i = vm.messages.length-1; i >= 0; i--) {
-          if (vm.messages[m].id === parsedNotification.messageId) {
-            vm.messages[m].messageStatus = parsedNotification.newStatus;
+        for (var i = vm.messages.length - 1; i >= 0; i--) {
+          if (vm.messages[i].id === parsedNotification.messageId) {
+            vm.messages[i].messageStatus = parsedNotification.newStatus;
             break;
           }
         }
         $scope.$apply();
       })
-  	});
+    });
   }
 
   function chatWith() {
@@ -49,15 +48,11 @@ function mainController($scope, messageService) {
         messageService.getUnreadMessages(vm.to, vm.from,
           function response(unreadMessages) {
             vm.messages = vm.messages.concat(unreadMessages.data);
-            angular.forEach(unreadMessages.data, function (m) {
+            angular.forEach(unreadMessages.data, function(m) {
               if (m.messageStatus === 'SENT') {
-                messageService.setMessageStatus(m.id, 'RECEIVED',
-                  function toSeen() {
-                    messageService.setMessageStatus(m.id, 'SEEN');
-                  }
-                );
+                setMessageToReceivedAndSeenIf(m.id, true);
               } else if (m.messageStatus === 'RECEIVED') {
-                messageService.setMessageStatus(m.id, 'SEEN');
+                setMessageToSeen(m.id);
               }
               m.messageStatus = 'SEEN';
             })
@@ -65,7 +60,20 @@ function mainController($scope, messageService) {
         )
       }
     );
+  }
 
+  function setMessageToReceivedAndSeenIf(messageId, setAsSeen) {
+    messageService.setMessageStatus(messageId, 'RECEIVED',
+      function toSeen() {
+        if (setAsSeen) {
+          setMessageToSeen(messageId);
+        }
+      }
+    );
+  }
+
+  function setMessageToSeen(messageId) {
+    messageService.setMessageStatus(messageId, 'SEEN');
   }
 
   function sendMessage() {
@@ -82,19 +90,19 @@ function mainController($scope, messageService) {
 function messageService($http) {
   const ENDPOINT = 'http://localhost:8080';
   var api = {
-    endpoint: ENDPOINT;
+    endpoint: ENDPOINT
   };
 
   api.sendNewMessage = function(from, to, data, successFn) {
-      $http({
-        method: 'POST',
-        url: ENDPOINT + '/api/message',
-        data: {
-          from: from,
-          to: to,
-          data: data
-        }
-      }).then(successFn);
+    $http({
+      method: 'POST',
+      url: ENDPOINT + '/api/message',
+      data: {
+        from: from,
+        to: to,
+        data: data
+      }
+    }).then(successFn);
   };
   api.getPreviousMessages = function(from, to, successFn) {
     $http({
